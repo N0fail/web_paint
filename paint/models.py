@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here.
 
 
-class glossary(models.Model):
+class Glossary(models.Model):
     name = models.CharField(max_length=200)
     words = models.TextField()
 

@@ -1,0 +1,22 @@
+h1 a {
+    color: slateblue;
+}
+
+.col-6 {
+    border : 4px groove bisque;
+    border-radius: 10px 10px 10px 10px;
+    background-color: khaki;
+    text-align: center;
+    font-size: 200%;
+    color: maroon;
+}
+
+.col-6 h3{
+    font-size: 75%;
+    color: cornflowerblue;
+}
+
+.col-6 p{
+    font-size: 50%;
+    color: black;
+}

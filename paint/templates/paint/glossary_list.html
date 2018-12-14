@@ -1,0 +1,26 @@
+{% load static %}
+<html>
+    <head>
+        <title>Glossary List</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="{% static 'css/paint.css' %}">
+    </head>
+    <body>
+        <div>
+            <h1  class="text-center"><a href="/"> Выберите словарь </a></h1>
+        </div>
+        <div class="container">
+            <div class="row">
+                {% for glossary in glossarys %}
+                <div class="col-6 col-md-4">
+                    <h3>Тема:</h3>
+                    <h2>{{ glossary.name }}</h2>
+                    <h3>Пример слов:</h3>
+                    <p>{{ glossary.words|truncatewords:3 }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </body>
+</html>

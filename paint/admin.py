@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import glossary
+from .models import Glossary
 
-admin.site.register(glossary)
+admin.site.register(Glossary)
