@@ -1,0 +1,30 @@
+{% load static %}
+
+{% block content %}
+<html>
+    <head>
+        <title>Welcome!</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="{% static 'css/paint.css' %}">
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4 col-sm-offset-4">
+                    <h1 class="text-center">Добро пожаловать!</h1>
+                     <form role="form" action="choose_glossary" method="post">
+                         {% csrf_token %}
+                        <div class="form-group">
+                            <label for="exampleInputLogin1">Выберите логин</label>
+                            {{ form }}
+                            <input name="current_login" type="login" class="form-control" id="exampleInputLogin1" placeholder="Мой логин" value="{{ current_login }}">
+                        </div>
+                        <button type="submit" class="btn btn-default">Подтвердить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+{% endblock %}

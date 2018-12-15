@@ -20,3 +20,22 @@ h1 a {
     font-size: 50%;
     color: black;
 }
+
+.center_div{
+    margin: 0 auto;
+    background-color: khaki;
+    width:100% /* value of your choice which suits your alignment */
+}
+
+.col-sm-4{
+    border : 4px groove bisque;
+    border-radius: 10px 10px 10px 10px;
+    background-color: khaki;
+    text-align: center;
+    font-size: 200%;
+    color: maroon;
+}
+
+label{
+    color: #24459E;
+}

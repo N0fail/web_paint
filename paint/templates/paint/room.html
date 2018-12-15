@@ -12,19 +12,11 @@
         </div>
         <div class="container">
             <div class="row">
-                {% for glossary in glossarys %}
+
                 <div class="col-6 col-md-4">
-                    <form role="form" action="room" method="post">
-                        {% csrf_token %}
-                        <h3>Тема:</h3>
-                        <h2>{{ glossary.name }}</h2>
-                        <h3>Пример слов:</h3>
-                        <p>{{ glossary.words|truncatewords:3 }}</p>
-                        <input name="glossary_name" class="form-control" value="{{ glossary.name }}">
-                        <button type="submit" class="btn btn-default">Подтвердить</button>
-                    </form>
+                    <p>{{ room_id }}</p>
                 </div>
-                {% endfor %}
+
             </div>
         </div>
     </body>
