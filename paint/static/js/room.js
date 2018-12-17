@@ -137,7 +137,10 @@ $(document).ready(setInterval(function(){
              return response.json()
          })
         .then(function(response) {
+            $('#current_role').text("Your current role: " + response[2]['role']);
             if (response[2]['role'] == 'master'){
+                $('#current_word').text(response[1]['current_word']);
+                $('#current_word').show();
                 $('#set_question').hide();
                 $('#set_guessing').hide();
                 console.log('im master')
@@ -150,10 +153,12 @@ $(document).ready(setInterval(function(){
                 else{
                     $('#set_question').hide();
                 }
+                $('#current_word').hide();
                 $('#set_guessing').show();
                 console.log('im qestioner')
             }
             else if (response[2]['role'] == 'watcher'){
+                $('#current_word').hide();
                 $('#set_question').hide();
                 $('#set_guessing').show();
                 console.log('im watcher')
@@ -183,8 +188,13 @@ $(document).ready(setInterval(function(){
                     }
                 }
                 else if (obj.fields['aim'] == 'guessing'){
-                    if (obj.fields[''])
-                    $('#messages-g').append('<div class="msg-right"><bdo> Это ' + obj.fields['message'] + "? :" + obj.fields['author'] + '</bdo></div>');
+                    if (obj.fields['response'] == 'correct') {
+                        $('#messages-g').append('<div class="msg-right yes_answered"><bdo> Is it ' + obj.fields['message'] + "? :" + obj.fields['author'] + '</bdo></div>');
+                    }
+                    else{
+                        $('#messages-g').append('<div class="msg-right no_answered"><bdo> Is it ' + obj.fields['message'] + "? :" + obj.fields['author'] + '</bdo></div>');
+                    }
+
                 }
             }
             $('#messages-q').scrollTop($('#messages-q')[0].scrollHeight);
@@ -194,6 +204,85 @@ $(document).ready(setInterval(function(){
             console.log('error')
         })
 }, 2000));
+
+$(document).ready( function(){
+    var myHeaders = new Headers({
+        'act': 'refresh'
+    });
+    var myInit = { mehhod: 'GET',
+        headers: myHeaders};
+    fetch('fetch', myInit)
+        .then(function(response){
+             //console.log(response);
+             return response.json()
+         })
+        .then(function(response) {
+            $('#current_role').text("Your current role: " + response[2]['role']);
+            if (response[2]['role'] == 'master'){
+                $('#current_word').show();
+                $('#set_question').hide();
+                $('#set_guessing').hide();
+                console.log('im master')
+                //дописать
+            }
+            else if (response[2]['role'] == 'questioner'){
+                if (response[0]['all_answered'] == 'True') {
+                    $('#set_question').show();
+                }
+                else{
+                    $('#set_question').hide();
+                }
+                $('#current_word').hide();
+                $('#set_guessing').show();
+                console.log('im qestioner')
+            }
+            else if (response[2]['role'] == 'watcher'){
+                $('#current_word').hide();
+                $('#set_question').hide();
+                $('#set_guessing').show();
+                console.log('im watcher')
+            }
+            //отобразить новые messages questions - слева suggessions - справа
+            for (var i = 3; i < response.length; i++){
+                var obj = response[i];
+                if (obj.fields['aim'] == 'question'){
+                    //console.log(obj.fields['response'])
+                    if (obj.fields['response'] == 'no_response') {//если ответили раньше чем появилось, то что???
+                        $('#messages-q').append('<div class="msg-left"><bdo>' + obj.fields['author'] + ": " + obj.fields['message'] + '? </bdo></div>');
+                        if (response[2]['role'] == 'master') {
+                            $('#modal_for_master').modal('show');
+                            $('#question_for_master').text(obj.fields['message'] + '?');
+                        } else {
+                        }
+                    }
+                    else{
+                        var select_str = 'bdo:contains('+ obj.fields['message'] +')';
+                        if (obj.fields['response'] == 'yes'){
+                            console.log('yes answered');
+                            $(select_str).addClass('yes_answered');
+                        }
+                        else{
+                            $('bdo:contains('+ obj.fields['message'] +')').addClass('no_answered');
+                        }
+                    }
+                }
+                else if (obj.fields['aim'] == 'guessing'){
+                    if (obj.fields['response'] == 'correct') {
+                        $('#messages-g').append('<div class="msg-right yes_answered"><bdo> Is it ' + obj.fields['message'] + "? :" + obj.fields['author'] + '</bdo></div>');
+                    }
+                    else{
+                        $('#messages-g').append('<div class="msg-right no_answered"><bdo> Is it ' + obj.fields['message'] + "? :" + obj.fields['author'] + '</bdo></div>');
+                    }
+
+                }
+            }
+            $('#messages-q').scrollTop($('#messages-q')[0].scrollHeight);
+            $('#messages-g').scrollTop($('#messages-g')[0].scrollHeight);
+        })
+        .catch(function() {
+            console.log('error')
+        })
+} );
 
 //обработчик отправки догадки
 //если верно, отключить html взаимодействия и ждать след. рефреш

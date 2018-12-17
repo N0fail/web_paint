@@ -15,6 +15,9 @@ from django.db.models import Q
 
 
 def glossary_list(request):
+    if request.method == 'GET':
+        if request.session.get('current_login') is None:
+            return redirect('./login')
     if request.method == 'POST':
         #current_login = request.POST.dict()#['current_login']
         current_login = request.POST['current_login']  # ['current_login']
@@ -47,7 +50,7 @@ def room(request):
             room = Room()
             glossary = Glossary.objects.filter(name=request.POST['glossary_name'])
             room.create(glossary[0], request.session.session_key)
-            room.set_questioner(1)
+            #room.set_questioner(1)
         #session['room_id'] = session['csrfmiddlewaretoken']
         #request.method = 'GET'
         #request.GET['room_id'] = request.session.session_key
@@ -58,20 +61,24 @@ def room(request):
         #return redirect('./room', room_id=request.session.session_key)
         return response
     else:
+        if request.session.get('current_login') is None:
+            return redirect('./login')
         current_room_id = request.GET['room_id']
         room = Room.objects.filter(room_id=current_room_id)
         if room.count() == 0:
             return render(request, 'paint/no_room.html', {'room_id': 'Такой комнаты нет'})
         else:
             room = room[0]
-            request.session['room_id'] = current_room_id
+            #request.session['room_id'] = current_room_id
             request.session['my_role'] = 'watcher'
             request.session['last_update'] = str(timezone.now())
             if request.session.get('room_id') is None:
                 print('first if')
+                request.session['room_id'] = current_room_id
                 request.session['my_id_in_room'] = room.add_player()
             elif request.session['room_id'] != current_room_id:
                 print('second if')
+                request.session['room_id'] = current_room_id
                 request.session['my_id_in_room'] = room.add_player()
             elif request.session.get('my_id_in_room', None) is None:
                 print('third if')
@@ -79,10 +86,17 @@ def room(request):
             elif request.session['my_id_in_room'] == -1:
                 print('fourth if')
                 request.session['my_id_in_room'] = room.add_player()
+
+            if room.current_master == request.session['my_id_in_room']:
+                request.session['my_role'] = 'master'
+            elif room.current_questioner == request.session['my_id_in_room']:
+                request.session['my_role'] = 'questioner'
         questions = Message.objects.filter(room_id=current_room_id, aim='question')
         guessings = Message.objects.filter(room_id=current_room_id, aim='guessing')
         return render(request, 'paint/room.html', {'questions': questions, 'guessings': guessings,
-                                                   'is_questioner': request.session['my_role'] == 'questioner'})
+                                                   'current_word': room.current_word,
+                                                   'current_login': request.session['current_login'],
+                                                   'current_role': request.session['my_role']})
 
 
 def fetch_handle(request):

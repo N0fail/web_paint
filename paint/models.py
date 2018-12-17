@@ -46,6 +46,10 @@ class Room(models.Model):
         #self.user_sessions = self.user_sessions + ', ' + session_id
         if self.current_players_count < self.max_players:
             self.current_players_count += 1
+            if self.current_players_count == 1:
+                self.current_master = 1
+            elif self.current_players_count == 2:
+                self.current_questioner = 2
             self.save()
             return self.current_players_count
         else:
@@ -80,7 +84,7 @@ class Room(models.Model):
     def switch_master(self):
         self.current_master += 1
         if self.current_master > self.current_players_count:
-            self.current_questioner = 1
+            self.current_master = 1
         if self.current_questioner == self.current_master:
             self.switch_questioner()
         self.save()

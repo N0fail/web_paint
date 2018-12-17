@@ -138,3 +138,12 @@ label{
 }
 
 .close {display: none;}
+
+.col-lg-12{
+    border : 4px groove bisque;
+    border-radius: 10px 10px 10px 10px;
+    background-color: khaki;
+    text-align: center;
+    font-size: 200%;
+    color: darkgreen;
+}
