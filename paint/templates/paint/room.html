@@ -1,23 +1,62 @@
 {% load static %}
+<!--<html>-->
+    <!--<head>-->
+        <!--<title>Glossary List</title>-->
+        <!--<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">-->
+        <!--<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">-->
+        <!--<link rel="stylesheet" href="{% static 'css/paint.css' %}">-->
+    <!--</head>-->
+    <!--<body>-->
+        <!--<div>-->
+            <!--<h1  class="text-center"> Выберите словарь, {{current_login}} </a></h1>-->
+        <!--</div>-->
+        <!--<div class="container">-->
+            <!--<div class="row">-->
+
+                <!--<div class="col-6 col-md-4">-->
+                    <!--<p>{{ room_id }}</p>-->
+                    <!--<button>Get External Content</button>-->
+                    <!--<div id="here"></div>-->
+                <!--</div>-->
+
+            <!--</div>-->
+        <!--</div>-->
+    <!--</body>-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <!--<script type = "text/javascript" src="{% static 'js/room.js' %}"></script>-->
+<!--</html>-->
 <html>
     <head>
-        <title>Glossary List</title>
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <link rel="stylesheet" href="{% static 'css/paint.css' %}">
     </head>
-    <body>
-        <div>
-            <h1  class="text-center"> Выберите словарь, {{current_login}} </a></h1>
-        </div>
-        <div class="container">
-            <div class="row">
+    <!------ Include the above in your HEAD tag ---------->
 
-                <div class="col-6 col-md-4">
-                    <p>{{ room_id }}</p>
+    <div class="container" id="questions">
+        <div id="messages-q">
+            {% for question in questions %}
+                <div class="msg-left">
+                    {{ question.message }}?
                 </div>
-
-            </div>
+            {% endfor %}
         </div>
-    </body>
+        <input id="question_field" placeholder="Ваш вопрос">
+        {% if is_questioner %}
+            <button type="submit" class="btn btn-default" id="set_question">Задать вопрос</button>
+        {% endif %}
+    </div>
+    <!--<div class="container" id="guessings">-->
+        <!--<div id="messages-g">-->
+            <!--{% for qustion in questions %}-->
+                <!--<div class="msg-left">-->
+                    <!--{{ question }}?-->
+                <!--</div>-->
+            <!--{% endfor %}-->
+        <!--</div>-->
+    <!--</div>-->
+    <script>$('#messages-q').scrollTop($('#messages-q')[0].scrollHeight);</script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type = "text/javascript" src="{% static 'js/room.js' %}"></script>
 </html>

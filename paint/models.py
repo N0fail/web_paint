@@ -18,12 +18,9 @@ class Glossary(models.Model):
 class Room(models.Model):
     glossary = models.ForeignKey(Glossary)
     max_players = models.IntegerField()
-    #user_sessions = model.TextField()
     room_id = models.TextField()
     current_master = models.IntegerField()
     current_questioner = models.IntegerField()
-    questions_chat = models.TextField()
-    guessing_chat = models.TextField()
     current_players_count = models.IntegerField()
 
     def create(self, glossary_id, creator_session, max_players=5):
@@ -64,6 +61,34 @@ class Room(models.Model):
 
     def __str__(self):
         return self.room_id
+
+
+class Message(models.Model):
+    room_id = models.CharField(default='', max_length=70)
+    message = models.CharField(max_length=200)
+    response = models.CharField(default='', max_length=20)
+    author = models.CharField(max_length=30)
+    aim = models.CharField(max_length=20)
+    #is_new = models.BooleanField(default=True)
+    #new_response = models.BooleanField(default=False)
+    last_update = models.DateField(auto_now=True, auto_now_add=True)
+
+    def create(self, room_id, author, message, aim):
+        self.room_id = room_id
+        self.author = author
+        self.response = ''
+        self.message = message
+        self.aim = aim
+        #self.is_new = True
+        #self.new_response = False
+        self.save()
+
+    def set_response(self, response):
+        self.response = response
+        self.save()
+
+    def __str__(self):
+        return self.message
 
 # class User(models.Model):
 #     login = models.CharField(unique=True)
