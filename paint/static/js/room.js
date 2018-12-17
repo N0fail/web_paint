@@ -183,6 +183,7 @@ $(document).ready(setInterval(function(){
                     }
                 }
                 else if (obj.fields['aim'] == 'guessing'){
+                    if (obj.fields[''])
                     $('#messages-g').append('<div class="msg-right"><bdo> Это ' + obj.fields['message'] + "? :" + obj.fields['author'] + '</bdo></div>');
                 }
             }

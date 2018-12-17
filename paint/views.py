@@ -118,6 +118,7 @@ def fetch_handle(request):
         else:
             new_message = '[]'
             new_message = '[{"role": "' + request.session['my_role'] + '"}' + new_message[1:]
+
         new_message = '[{"current_word": "' + room.current_word + '"},' + new_message[1:]
         new_message = '[{"all_answered": "' + str(room.all_answered) + '"},' + new_message[1:]
         return HttpResponse(new_message, content_type='application/json')
@@ -127,12 +128,14 @@ def fetch_handle(request):
         newMess.create(request.session['room_id'], request.session['current_login'], header["DATA"], 'guessing')
         room = Room.objects.filter(room_id=request.session['room_id'])[0]
         if room.current_word == header["DATA"]:
+            newMess.set_response("correct")
             room.switch_master()
             room.switch_current_word()
             newMess.response = 'correct'
             response = '{"is_correct": "correct"}'
         else:
-             response = '{"is_correct": "incorrect"}'
+            newMess.set_response("incorrect")
+            response = '{"is_correct": "incorrect"}'
         return HttpResponse(response, content_type='application/json')
 
     elif header["ACT"] == 'master_answer':
@@ -141,7 +144,6 @@ def fetch_handle(request):
         room.set_all_answered(True)
         message.set_response(header["ANSWER"])
         return HttpResponse(json.dumps({}), content_type='application/json')
-
 
     return HttpResponse(room, content_type='application/json')
 

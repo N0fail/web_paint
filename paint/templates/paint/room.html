@@ -61,10 +61,10 @@
                     <div class="container">
                         <div clas="row">
                             <div class="col">
-                                <input id="question_field" placeholder="Ваш вопрос">
+                                <input id="question_field" placeholder="Your question">
                             </div>
                             <div class="col">
-                                <button type="submit" class="btn btn-default" id="set_question">Задать вопрос</button>
+                                <button type="submit" class="btn btn-default" id="set_question">Ask</button>
                             </div>
                         </div>
                     </div>
@@ -75,19 +75,26 @@
                     <div id="messages-g">
                         {% for guessing in guessings %}
                             <div class="msg-right">
-                                <bdo>
-                                Это {{ guessing.message }}? :{{ guessing.author }}
-                                </bdo>
+                                {% if guessing.response == 'correct' %}
+                                    <bdo class="yes_answered">
+                                    Is it {{ guessing.message }}? :{{ guessing.author }}
+                                    </bdo>
+                                {% endif %}
+                                {% if guessing.response == 'incorrect' %}
+                                    <bdo class="no_answered">
+                                    Is it {{ guessing.message }}? :{{ guessing.author }}
+                                    </bdo>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
                     <div class="container">
                         <div clas="row">
                             <div class="col">
-                                <input id="guessing_field" placeholder="Ваша догадка">
+                                <input id="guessing_field" placeholder="Your guess">
                             </div>
                             <div class="col">
-                                <button type="submit" class="btn btn-default" id="set_guessing">Может это?</button>
+                                <button type="submit" class="btn btn-default" id="set_guessing">Maybe this?</button>
                             </div>
                         </div>
                     </div>
