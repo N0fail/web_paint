@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.core import serializers
 from django.utils import timezone
 import re
+import dateutil.parser
 from django.db.models import Q
 #import django.shortcuts
 
@@ -27,7 +28,7 @@ def login(request):
 
     #num_visits = request.session.get('num_visits', 0)
     #request.session['num_visits'] = num_visits + 1
-    #request.session.flush()
+    request.session.flush()
     current_login = request.session.get('current_login', '')
     return render(request, 'paint/login.html', {'current_login': current_login})
     error = ''
@@ -42,10 +43,11 @@ def login(request):
 
 def room(request):
     if request.method == 'POST':
-        if Room.objects.filter(room_id=request.session.session_key) is not None:
+        if Room.objects.filter(room_id=request.session.session_key).count() == 0:
             room = Room()
             glossary = Glossary.objects.filter(name=request.POST['glossary_name'])
             room.create(glossary[0], request.session.session_key)
+            room.set_questioner(1)
         #session['room_id'] = session['csrfmiddlewaretoken']
         #request.method = 'GET'
         #request.GET['room_id'] = request.session.session_key
@@ -59,19 +61,23 @@ def room(request):
         current_room_id = request.GET['room_id']
         room = Room.objects.filter(room_id=current_room_id)
         if room.count() == 0:
-            return render(request, 'paint/room.html', {'room_id': 'Такой комнаты нет'})
+            return render(request, 'paint/no_room.html', {'room_id': 'Такой комнаты нет'})
         else:
             room = room[0]
             request.session['room_id'] = current_room_id
             request.session['my_role'] = 'watcher'
-            request.session['last_update'] = timezone.now()
+            request.session['last_update'] = str(timezone.now())
             if request.session.get('room_id') is None:
+                print('first if')
                 request.session['my_id_in_room'] = room.add_player()
             elif request.session['room_id'] != current_room_id:
+                print('second if')
                 request.session['my_id_in_room'] = room.add_player()
-            elif request.session.get('my_id_in_room') is None:
+            elif request.session.get('my_id_in_room', None) is None:
+                print('third if')
                 request.session['my_id_in_room'] = room.add_player()
             elif request.session['my_id_in_room'] == -1:
+                print('fourth if')
                 request.session['my_id_in_room'] = room.add_player()
         questions = Message.objects.filter(room_id=current_room_id, aim='question')
         guessings = Message.objects.filter(room_id=current_room_id, aim='guessing')
@@ -83,48 +89,58 @@ def fetch_handle(request):
     regex = re.compile('^HTTP_')
     header = dict((regex.sub('', header), value) for (header, value)
          in request.META.items() if header.startswith('HTTP_'))
-    #header = json.dumps(room)
-    # if request.GET.get('headers') == 'hello':
-    #     room = Room.objects.filter(room_id=request.session.session_key)
-    #     room = serializers.serialize('json', room, fields=('room_id'))
-    # else:
-    #     room = json.dumps({'hello': 'hello'})
-    #room = serializers.serialize('json', room)
+
     if header["ACT"] == 'set_question':
         newMess = Message()
         newMess.create(request.session['room_id'], request.session['current_login'], header["DATA"], 'question')
-        return HttpResponse(json.dumps({}), content_type='application/json')
-    elif header["ACT"] == 'refresh':
-        new_message = Message.objects.filter(room_id=session['room_id'], last_update__range=[session['last_update'], timezone.now()])
         room = Room.objects.filter(room_id=request.session['room_id'])[0]
-        if room.questioner_id == request.session['my_id_in_room']:
+        room.switch_questioner()
+        room.set_all_answered(False)
+        return HttpResponse(json.dumps({}), content_type='application/json')
+
+    elif header["ACT"] == 'refresh':
+
+        last_update = dateutil.parser.parse(request.session['last_update'])
+        new_message = Message.objects.filter(room_id=request.session['room_id'], last_update__range=[last_update, timezone.now()])
+        request.session['last_update'] = str(timezone.now())
+
+        room = Room.objects.filter(room_id=request.session['room_id'])[0]
+        if room.current_questioner == request.session['my_id_in_room']:
             request.session['my_role'] = 'questioner'
-        elif room.master == request.session['my_id_in_room']:
+        elif room.current_master == request.session['my_id_in_room']:
             request.session['my_role'] = 'master'
         else:
             request.session['my_role'] = 'watcher'
-        response = {'role': request.session['my_role']}
-        #if request.session['my_role'] == 'watcher':
+
         if new_message.count() != 0:
-            new_message = serializers.serialize('json', new_message, fields=('message','aim','response','author','is_new'))
-            #вернуть все новые сообщения, роль,
+            new_message = serializers.serialize('json', new_message, fields=('message', 'aim', 'response', 'author'))
+            new_message = '[{"role": "' + request.session['my_role'] + '"},' + new_message[1:]
         else:
-            #вернуть роль, отсутвие новых сообщений
-
-        #elif request.session['my_role'] == 'questioner':
-
-        #elif request.session['my_role'] == 'master':
+            new_message = '[]'
+            new_message = '[{"role": "' + request.session['my_role'] + '"}' + new_message[1:]
+        new_message = '[{"current_word": "' + room.current_word + '"},' + new_message[1:]
+        new_message = '[{"all_answered": "' + str(room.all_answered) + '"},' + new_message[1:]
+        return HttpResponse(new_message, content_type='application/json')
 
     elif header["ACT"] == 'set_guessing':
         newMess = Message()
         newMess.create(request.session['room_id'], request.session['current_login'], header["DATA"], 'guessing')
-        if #correct :
-            #switch master
-            #switch word
-            #пометить как correct
-            #вернуть коррект
+        room = Room.objects.filter(room_id=request.session['room_id'])[0]
+        if room.current_word == header["DATA"]:
+            room.switch_master()
+            room.switch_current_word()
+            newMess.response = 'correct'
+            response = '{"is_correct": "correct"}'
         else:
-            #вернуть не коррект
+             response = '{"is_correct": "incorrect"}'
+        return HttpResponse(response, content_type='application/json')
+
+    elif header["ACT"] == 'master_answer':
+        message = Message.objects.get(room_id=request.session['room_id'], aim="question", response="no_response")
+        room = Room.objects.get(room_id=request.session['room_id'])
+        room.set_all_answered(True)
+        message.set_response(header["ANSWER"])
+        return HttpResponse(json.dumps({}), content_type='application/json')
 
 
     return HttpResponse(room, content_type='application/json')

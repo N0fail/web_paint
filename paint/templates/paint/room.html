@@ -33,30 +33,94 @@
         <link rel="stylesheet" href="{% static 'css/paint.css' %}">
     </head>
     <!------ Include the above in your HEAD tag ---------->
-
-    <div class="container" id="questions">
-        <div id="messages-q">
-            {% for question in questions %}
-                <div class="msg-left">
-                    {{ question.message }}?
+    <div class="container" id = "chats_container">
+        <div class="row">
+            <div class="col">
+                <div class="container" id="questions">
+                    <div id="messages-q">
+                        {% for question in questions %}
+                            <div class="msg-left">
+                                {% if question.response == 'yes' %}
+                                    <bdo class="yes_answered">
+                                    {{ question.author }}: {{ question.message }}?
+                                    </bdo>
+                                {% endif %}
+                                {% if question.response == 'no' %}
+                                    <bdo class="no_answered">
+                                    {{ question.author }}: {{ question.message }}?
+                                    </bdo>
+                                {% endif %}
+                                {% if question.response == 'no_response' %}
+                                    <bdo>
+                                    {{ question.author }}: {{ question.message }}?
+                                    </bdo>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="container">
+                        <div clas="row">
+                            <div class="col">
+                                <input id="question_field" placeholder="Ваш вопрос">
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-default" id="set_question">Задать вопрос</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            {% endfor %}
+            </div>
+            <div class="col">
+                <div class="container" id="guessings">
+                    <div id="messages-g">
+                        {% for guessing in guessings %}
+                            <div class="msg-right">
+                                <bdo>
+                                Это {{ guessing.message }}? :{{ guessing.author }}
+                                </bdo>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="container">
+                        <div clas="row">
+                            <div class="col">
+                                <input id="guessing_field" placeholder="Ваша догадка">
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-default" id="set_guessing">Может это?</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <input id="question_field" placeholder="Ваш вопрос">
-        {% if is_questioner %}
-            <button type="submit" class="btn btn-default" id="set_question">Задать вопрос</button>
-        {% endif %}
     </div>
-    <!--<div class="container" id="guessings">-->
-        <!--<div id="messages-g">-->
-            <!--{% for qustion in questions %}-->
-                <!--<div class="msg-left">-->
-                    <!--{{ question }}?-->
-                <!--</div>-->
-            <!--{% endfor %}-->
-        <!--</div>-->
-    <!--</div>-->
+    <div class="container">
+        <!-- DIALOG FOR MASTER -->
+        <div class="modal fade" id="modal_for_master" role="dialog">
+            <div class="modal-dialog">
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">New question!</h4>
+                </div>
+                <div class="modal-body">
+                  <p id="question_for_master">Some text in the modal.</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-success" data-dismiss="modal" id="master_said_yes">Yes</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" id="master_said_no">No</button>
+                </div>
+              </div>
+
+            </div>
+        </div>
+        </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script>$('#messages-q').scrollTop($('#messages-q')[0].scrollHeight);</script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>$('#messages-g').scrollTop($('#messages-g')[0].scrollHeight);</script>
     <script type = "text/javascript" src="{% static 'js/room.js' %}"></script>
 </html>
