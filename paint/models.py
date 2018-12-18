@@ -78,7 +78,7 @@ class Room(models.Model):
         if self.current_questioner > self.current_players_count:
             self.current_questioner = 1
         if self.current_questioner == self.current_master:
-            self.current_questioner += 1
+            self.switch_questioner()
         self.save()
 
     def switch_master(self):
