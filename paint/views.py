@@ -63,7 +63,7 @@ def room(request):
     else:
         if request.session.get('current_login') is None:
             return redirect('./login')
-        current_room_id = request.GET['room_id']
+        current_room_id = request.GET.get('room_id')
         room = Room.objects.filter(room_id=current_room_id)
         if room.count() == 0:
             return render(request, 'paint/no_room.html', {'room_id': 'Такой комнаты нет'})
@@ -161,4 +161,7 @@ def fetch_handle(request):
 
     return HttpResponse(room, content_type='application/json')
 
+
+def login_redirect(request):
+    return redirect('/login')
 # Create your views here.

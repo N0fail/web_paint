@@ -20,5 +20,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     #url(r'', include('paint.urls')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
-    url(r'^paint/', include('paint.urls'))
+    url(r'^paint/', include('paint.urls')),
+    url(r'', include('paint.urls'))
 ]

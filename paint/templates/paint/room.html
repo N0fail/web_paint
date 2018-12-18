@@ -75,11 +75,11 @@
                     <div class="container">
                         <div clas="row">
                             <div class="col">
-                                <input id="question_field" placeholder="Your question">
+                                <input id="question_field" placeholder="Your question" pattern="^[0-9a-zA-Z\s]+$" data-toggle="tooltip" data-placement="bottom">
                             </div>
                             <div class="col">
 
-                                <button type="submit" class="btn btn-default" id="set_question">Ask</button>
+                                <button type="submit" class="btn btn-default" id="set_question" pattern="^[a-zA-Z\s]+$">Ask</button>
                             </div>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                     <div class="container">
                         <div clas="row">
                             <div class="col">
-                                <input id="guessing_field" placeholder="Your guess">
+                                <input id="guessing_field" placeholder="Your guess" data-toggle="tooltip" data-placement="bottom" pattern="^[0-9a-zA-Z\s]+$">
                             </div>
                             <div class="col">
                                 <button type="submit" class="btn btn-default" id="set_guessing">Maybe this?</button>
@@ -141,6 +141,7 @@
         </div>
     </body>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script>$('#messages-q').scrollTop($('#messages-q')[0].scrollHeight);</script>

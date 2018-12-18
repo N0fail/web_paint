@@ -47,12 +47,14 @@ label{
 }
 #messages-q{
   overflow-y: scroll;
+  background-color: bisque !important;
   height: 400px;
   margin: 0 17%;
   background:#fff;
 }
 #messages-g{
   overflow-y: scroll;
+  background-color: bisque !important;
   height: 400px;
   margin: 0 17%;
   background:#fff;
@@ -146,4 +148,12 @@ label{
     text-align: center;
     font-size: 200%;
     color: darkgreen;
+}
+
+bdo{
+    word-wrap: break-word;
+}
+
+body{
+    background-color: bisque;
 }
