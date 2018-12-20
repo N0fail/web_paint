@@ -41,17 +41,27 @@ $(document).ready( function(){
                     $('#messages-q').scrollTop($('#messages-q')[0].scrollHeight);
                     //console.log("my id: " + my_id_in_room);
                     //console.log("master id: " + data.current_master);
-                    if (data.current_qustioner == my_id_in_room) {
+                    if (data.current_questioner == my_id_in_room) {
                         my_role_in_room = "questioner"
                         $('#current_role').text("Your current role: " + my_role_in_room);
                     } else {
                         $("#set_question").prop("disabled", true);
+                        if (data.current_master == my_id_in_room){
+                            my_role_in_room = "master"
+                            $('#modal_for_master').modal('show');
+                            $('#question_for_master').text(data.message + '?');
+                            $('#current_role').text("Your current role: " + my_role_in_room);
+                        }
+                        else{
+                            my_role_in_room = "watcher"
+                            $('#current_role').text("Your current role: " + my_role_in_room);
+                        }
                     }
-                    if (my_id_in_room == data.current_master) {
-                        //console.log("doljen vilesti vopros");
-                        $('#modal_for_master').modal('show');
-                        $('#question_for_master').text(data.message + '?');
-                    }
+                    // if (my_id_in_room == data.current_master) {
+                    //     //console.log("doljen vilesti vopros");
+                    //     $('#modal_for_master').modal('show');
+                    //     $('#question_for_master').text(data.message + '?');
+                    // }
                     $('#messages-q').scrollTop($('#messages-q')[0].scrollHeight);
                 });
                 //console.log("new_question binded")

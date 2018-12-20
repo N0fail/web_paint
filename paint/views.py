@@ -82,19 +82,21 @@ def room(request):
             request.session['my_role'] = 'watcher'
             request.session['last_update'] = str(timezone.now())
             if request.session.get('room_id') is None:
-                print('first if')
+                #print('first if')
                 request.session['room_id'] = current_room_id
                 request.session['my_id_in_room'] = room.add_player()
             elif request.session['room_id'] != current_room_id:
-                print('second if')
+                #print('second if')
                 request.session['room_id'] = current_room_id
                 request.session['my_id_in_room'] = room.add_player()
             elif request.session.get('my_id_in_room', None) is None:
-                print('third if')
+                #print('third if')
                 request.session['my_id_in_room'] = room.add_player()
             elif request.session['my_id_in_room'] == -1:
-                print('fourth if')
+                #print('fourth if')
                 request.session['my_id_in_room'] = room.add_player()
+            #elif request.session.get('left') is None
+
 
             if room.current_master == request.session['my_id_in_room']:
                 request.session['my_role'] = 'master'
@@ -126,30 +128,30 @@ def fetch_handle(request):
                                'current_questioner': room.current_questioner, 'current_master': room.current_master})
         return HttpResponse(json.dumps({}), content_type='application/json')
 
-    elif header["ACT"] == 'refresh':
-
-        last_update = dateutil.parser.parse(request.session['last_update'])
-        new_message = Message.objects.filter(room_id=request.session['room_id'], last_update__range=[last_update, timezone.now()])
-        request.session['last_update'] = str(timezone.now())
-
-        room = Room.objects.filter(room_id=request.session['room_id'])[0]
-        if room.current_questioner == request.session['my_id_in_room']:
-            request.session['my_role'] = 'questioner'
-        elif room.current_master == request.session['my_id_in_room']:
-            request.session['my_role'] = 'master'
-        else:
-            request.session['my_role'] = 'watcher'
-
-        if new_message.count() != 0:
-            new_message = serializers.serialize('json', new_message, fields=('message', 'aim', 'response', 'author'))
-            new_message = '[{"role": "' + request.session['my_role'] + '"},' + new_message[1:]
-        else:
-            new_message = '[]'
-            new_message = '[{"role": "' + request.session['my_role'] + '"}' + new_message[1:]
-
-        new_message = '[{"current_word": "' + room.current_word + '"},' + new_message[1:]
-        new_message = '[{"all_answered": "' + str(room.all_answered) + '"},' + new_message[1:]
-        return HttpResponse(new_message, content_type='application/json')
+    # elif header["ACT"] == 'refresh':
+    #
+    #     last_update = dateutil.parser.parse(request.session['last_update'])
+    #     new_message = Message.objects.filter(room_id=request.session['room_id'], last_update__range=[last_update, timezone.now()])
+    #     request.session['last_update'] = str(timezone.now())
+    #
+    #     room = Room.objects.filter(room_id=request.session['room_id'])[0]
+    #     if room.current_questioner == request.session['my_id_in_room']:
+    #         request.session['my_role'] = 'questioner'
+    #     elif room.current_master == request.session['my_id_in_room']:
+    #         request.session['my_role'] = 'master'
+    #     else:
+    #         request.session['my_role'] = 'watcher'
+    #
+    #     if new_message.count() != 0:
+    #         new_message = serializers.serialize('json', new_message, fields=('message', 'aim', 'response', 'author'))
+    #         new_message = '[{"role": "' + request.session['my_role'] + '"},' + new_message[1:]
+    #     else:
+    #         new_message = '[]'
+    #         new_message = '[{"role": "' + request.session['my_role'] + '"}' + new_message[1:]
+    #
+    #     new_message = '[{"current_word": "' + room.current_word + '"},' + new_message[1:]
+    #     new_message = '[{"all_answered": "' + str(room.all_answered) + '"},' + new_message[1:]
+    #     return HttpResponse(new_message, content_type='application/json')
 
     elif header["ACT"] == 'set_guessing':
         newMess = Message()
