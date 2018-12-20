@@ -11,6 +11,15 @@ from django.utils import timezone
 import re
 import dateutil.parser
 from django.db.models import Q
+import pusher
+
+pusher_client = pusher.Pusher(
+  app_id='675002',
+  key='ec3b28d1f46d5d2bdea7',
+  secret='125987d0c03375a71505',
+  cluster='eu',
+  ssl=True
+)
 #import django.shortcuts
 
 
@@ -91,6 +100,8 @@ def room(request):
                 request.session['my_role'] = 'master'
             elif room.current_questioner == request.session['my_id_in_room']:
                 request.session['my_role'] = 'questioner'
+
+
         questions = Message.objects.filter(room_id=current_room_id, aim='question')
         guessings = Message.objects.filter(room_id=current_room_id, aim='guessing')
         return render(request, 'paint/room.html', {'questions': questions, 'guessings': guessings,
@@ -110,6 +121,9 @@ def fetch_handle(request):
         room = Room.objects.filter(room_id=request.session['room_id'])[0]
         room.switch_questioner()
         room.set_all_answered(False)
+        pusher_client.trigger(request.session["room_id"], 'new_question',
+                              {'message': header["DATA"], 'author': request.session['current_login'],
+                               'current_questioner': room.current_questioner, 'current_master': room.current_master})
         return HttpResponse(json.dumps({}), content_type='application/json')
 
     elif header["ACT"] == 'refresh':
@@ -147,9 +161,16 @@ def fetch_handle(request):
             room.switch_current_word()
             newMess.response = 'correct'
             response = '{"is_correct": "correct"}'
+            pusher_client.trigger(request.session["room_id"], 'new_guessing',
+                                  {'is_correct': True, 'guessing': header["DATA"],
+                                   'author': request.session['current_login'], 'current_master': room.current_master,
+                                   'current_word': room.current_word, 'current_questioner': room.current_questioner})
         else:
             newMess.set_response("incorrect")
             response = '{"is_correct": "incorrect"}'
+            pusher_client.trigger(request.session["room_id"], 'new_guessing',
+                                  {'is_correct': False, 'guessing': header["DATA"],
+                                   'author': request.session['current_login']})
         return HttpResponse(response, content_type='application/json')
 
     elif header["ACT"] == 'master_answer':
@@ -157,7 +178,14 @@ def fetch_handle(request):
         room = Room.objects.get(room_id=request.session['room_id'])
         room.set_all_answered(True)
         message.set_response(header["ANSWER"])
+        pusher_client.trigger(request.session["room_id"], 'question_answered',
+                              {'answer': header["ANSWER"], 'message': message.message})
         return HttpResponse(json.dumps({}), content_type='application/json')
+
+    elif header["ACT"] == 'init':
+        return HttpResponse(json.dumps({'my_id_in_room': request.session['my_id_in_room'],
+                                        'my_role_in_room': request.session['my_role'],
+                                        'channel_id': request.session["room_id"]}), content_type='application/json')
 
     return HttpResponse(room, content_type='application/json')
 
