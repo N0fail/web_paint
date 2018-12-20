@@ -170,7 +170,8 @@ def fetch_handle(request):
             response = '{"is_correct": "incorrect"}'
             pusher_client.trigger(request.session["room_id"], 'new_guessing',
                                   {'is_correct': False, 'guessing': header["DATA"],
-                                   'author': request.session['current_login']})
+                                   'author': request.session['current_login'], 'current_master': room.current_master,
+                                   'current_word': room.current_word, 'current_questioner': room.current_questioner})
         return HttpResponse(response, content_type='application/json')
 
     elif header["ACT"] == 'master_answer':
@@ -184,6 +185,7 @@ def fetch_handle(request):
         return HttpResponse(json.dumps({}), content_type='application/json')
 
     elif header["ACT"] == 'init':
+        #pusher_client.trigger(request.session["room_id"], '')
         return HttpResponse(json.dumps({'my_id_in_room': request.session['my_id_in_room'],
                                         'my_role_in_room': request.session['my_role'],
                                         'channel_id': request.session["room_id"]}), content_type='application/json')

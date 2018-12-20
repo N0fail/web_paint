@@ -31,8 +31,8 @@ $(document).ready( function(){
                         $("#set_guessing").prop("disabled", false);
                     }
                     else{
-                        $("#set_question").prop("disabled", false);
-                        $("#set_guessing").prop("disabled", true);
+                        $("#set_question").prop("disabled", true);
+                        $("#set_guessing").prop("disabled", false);
                     }
                 }
                 init_complete = true;
@@ -103,6 +103,12 @@ $(document).ready( function(){
                         }
                     } else {
                         $('#messages-g').append('<div class="msg-right no_answered"><bdo> Is it ' + data.guessing + "? :" + data.author + '</bdo></div>');
+                        if (my_role_in_room == "master"){
+                            $("#set_guessing").prop("disabled", true);
+                        }
+                        else{
+                            $("#set_guessing").prop("disabled", false);
+                        }
                     }
                     $('#current_role').text("Your current role: " + my_role_in_room);
                     $('#messages-g').scrollTop($('#messages-q')[0].scrollHeight);
