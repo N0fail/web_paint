@@ -54,7 +54,7 @@ $(document).ready( function(){
                     }
                     $('#messages-q').scrollTop($('#messages-q')[0].scrollHeight);
                 });
-                console.log("new_question binded")
+                //console.log("new_question binded")
 
                 channel.bind('question_answered', function (data) {
                     var select_str = 'bdo:contains(' + data.message + ')';
@@ -64,17 +64,19 @@ $(document).ready( function(){
                     } else {
                         $(select_str).addClass('no_answered');
                     }
-
-                    if (data.current_qustioner == my_id_in_room) {
+                    //console.log("My_id: " + my_id_in_room)
+                    //console.log("current_questioner: " + data.current_questioner)
+                    if (data.current_questioner == my_id_in_room) {
                         //**********************
                         //my_role_in_room = 'questioner';
+                        //console.log("button")
                         $("#set_question").prop("disabled", false);
                     } else {
                         //console.log("doljno otlu4itca");
                         $("#set_question").prop("disabled", true);
                     }
                 });
-                console.log("question_answered binded")
+                //console.log("question_answered binded")
 
                 channel.bind('new_guessing', function (data) {
                     if (data.is_correct) {
@@ -105,7 +107,7 @@ $(document).ready( function(){
                     $('#current_role').text("Your current role: " + my_role_in_room);
                     $('#messages-g').scrollTop($('#messages-q')[0].scrollHeight);
                 });
-                console.log("new_guessing binded")
+                //console.log("new_guessing binded")
 
                     //console.log("ini"my_id_in_room);
                 })

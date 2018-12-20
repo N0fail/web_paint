@@ -179,7 +179,8 @@ def fetch_handle(request):
         room.set_all_answered(True)
         message.set_response(header["ANSWER"])
         pusher_client.trigger(request.session["room_id"], 'question_answered',
-                              {'answer': header["ANSWER"], 'message': message.message})
+                              {'answer': header["ANSWER"], 'message': message.message,
+                               'current_questioner': room.current_questioner})
         return HttpResponse(json.dumps({}), content_type='application/json')
 
     elif header["ACT"] == 'init':
