@@ -97,6 +97,38 @@ class Room(models.Model):
         self.all_answered = value
         self.save()
 
+    def player_left(self, player_id):
+        player_id = int(player_id)
+        self.current_players_count -= 1
+        if self.current_players_count <= 0:
+            Message.objects.filter(room_id=self.room_id).delete()
+            self.delete()
+        elif self.current_players_count == 1:
+            self.current_master = 1
+            self.current_questioner = 0
+        elif player_id == self.current_master:
+            if self.current_questioner > player_id:
+                if player_id + 1 != self.current_questioner:
+                    self.current_questioner -= 1
+                elif self.current_questioner > self.current_players_count:
+                    self.current_questioner = 1
+            if self.current_master > self.current_players_count:
+                if self.current_questioner == 1:
+                    self.current_questioner = 2
+                self.current_master = 1
+        elif player_id == self.current_questioner:
+            if self.current_master > player_id:
+                self.current_master -= 1
+            if self.current_questioner == self.current_master:
+                self.switch_questioner()
+        else:
+            if self.current_master > player_id:
+                self.current_master -= 1
+            if self.current_questioner > player_id:
+                self.current_questioner -= 1
+        self.save()
+
+
     def __str__(self):
         return self.room_id
 

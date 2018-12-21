@@ -81,21 +81,31 @@ def room(request):
             #request.session['room_id'] = current_room_id
             request.session['my_role'] = 'watcher'
             request.session['last_update'] = str(timezone.now())
-            if request.session.get('room_id') is None:
-                #print('first if')
-                request.session['room_id'] = current_room_id
-                request.session['my_id_in_room'] = room.add_player()
-            elif request.session['room_id'] != current_room_id:
-                #print('second if')
-                request.session['room_id'] = current_room_id
-                request.session['my_id_in_room'] = room.add_player()
-            elif request.session.get('my_id_in_room', None) is None:
-                #print('third if')
-                request.session['my_id_in_room'] = room.add_player()
-            elif request.session['my_id_in_room'] == -1:
-                #print('fourth if')
-                request.session['my_id_in_room'] = room.add_player()
-            #elif request.session.get('left') is None
+            # if request.session.get('room_id') is None:
+            #     request.session['hello'] = "joined in"
+            #     #print('first if')
+            #     request.session['room_id'] = current_room_id
+            #     request.session['my_id_in_room'] = room.add_player()
+            # elif request.session['room_id'] != current_room_id:
+            #     request.session['hello'] = "joined in"
+            #     #print('second if')
+            #     request.session['room_id'] = current_room_id
+            #     request.session['my_id_in_room'] = room.add_player()
+            # elif request.session.get('my_id_in_room', None) is None:
+            #     request.session['hello'] = "joined in"
+            #     #print('third if')
+            #     request.session['my_id_in_room'] = room.add_player()
+            # elif request.session['my_id_in_room'] == -1:
+            #     #print('fourth if')
+            #     request.session['hello'] = "joined in"
+            #     request.session['my_id_in_room'] = room.add_player()
+            # elif request.session.get('left') is not None:
+            #     request.session['hello'] = "came back"
+            # else:
+            #     request.session['hello'] = 'not new'
+            request.session['room_id'] = current_room_id
+            request.session['my_id_in_room'] = room.add_player()
+            request.session['hello'] = "joined in"
 
 
             if room.current_master == request.session['my_id_in_room']:
@@ -158,7 +168,8 @@ def fetch_handle(request):
         newMess.create(request.session['room_id'], request.session['current_login'], header["DATA"], 'guessing')
         room = Room.objects.filter(room_id=request.session['room_id'])[0]
         if room.current_word == header["DATA"]:
-            newMess.set_response("correct")
+            #newMess.set_response("correct")
+            Message.objects.filter(room_id=request.session['room_id']).delete()
             room.switch_master()
             room.switch_current_word()
             newMess.response = 'correct'
@@ -188,9 +199,23 @@ def fetch_handle(request):
 
     elif header["ACT"] == 'init':
         #pusher_client.trigger(request.session["room_id"], '')
+        if (request.session.get("hello") is not None)and(request.session.get("hello") != "not new"):
+            pusher_client.trigger(request.session["room_id"], 'new_player', {'hello_message': request.session["hello"],
+                                                                             'nickname': request.session["current_login"]})
         return HttpResponse(json.dumps({'my_id_in_room': request.session['my_id_in_room'],
                                         'my_role_in_room': request.session['my_role'],
-                                        'channel_id': request.session["room_id"]}), content_type='application/json')
+                                        'channel_id': request.session["room_id"],
+                                        'my_nickname': request.session["current_login"]}), content_type='application/json')
+
+    elif header["ACT"] == 'leave':
+        room = Room.objects.get(room_id=request.session["room_id"])
+        room.player_left(header["ID"])
+        pusher_client.trigger(request.session["room_id"], 'player_left', {"leaver_id": header["ID"],
+                                                                          "current_master": room.current_master,
+                                                                          "current_questioner": room.current_questioner,
+                                                                          "leaver_name": header["NICKNAME"],
+                                                                          "current_word": room.current_word})
+        return HttpResponse(json.dumps({}), content_type='application/json')
 
     return HttpResponse(room, content_type='application/json')
 
